@@ -18,7 +18,6 @@ Display:
 
 
 ## Tutorials
-
 Good and straight forward tutorial for Raspberry Pi / Flightradar 24 
 - Build your own ADS-B receiver [Flightradar24 Article](https://www.flightradar24.com/build-your-own)
 
