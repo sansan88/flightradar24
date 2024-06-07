@@ -33,6 +33,9 @@ Good and straight forward tutorial for Raspberry Pi / Flightradar 24
 # Internal Webserver
 based on the [dump1090](https://github.com/SDRplay/dump1090/blob/master/README-json.md) repository. For more information checkout the readme file [here](https://github.com/SDRplay/dump1090/blob/master/README-json.md).
 
+
+
+
 **Map**
 
 `http://IP-of-Pi/dump1090/gmap.html`
