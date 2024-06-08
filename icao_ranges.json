@@ -1,4 +1,4 @@
-"ICAO_Ranges" [
+[
     {
         "start": "0x700000",
         "end": "0x700FFF",
