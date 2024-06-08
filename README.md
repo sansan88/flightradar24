@@ -70,3 +70,19 @@ Config file location ADS-B:
 You can check FR24 Feeder’s status at any time by executing:
 
 `fr24feed-status`
+
+# DUMP1090-FA
+
+wget https://www.flightaware.com/adsb/piaware/files/packages/pool/piaware/f/flightaware-apt-repository/flightaware-apt-repository_1.2_all.deb
+
+sudo dpkg -i flightaware-apt-repository_1.2_all.deb
+
+sudo apt update
+
+sudo apt install dump1090-fa
+
+sudo nano /etc/fr24feed.ini
+
+sudo reboot
+
+
