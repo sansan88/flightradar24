@@ -55,12 +55,13 @@ def search_flight(data, exact_terms, prefix_terms, icao_ranges, categories):
     results = []
     for aircraft in data['aircraft']:
         if 'flight' in aircraft and 'hex' in aircraft:
-            flight = aircraft['flight']
-            hex_code = aircraft['hex'].upper()
-            category = aircraft.get('category')
-            if any(term == flight for term in exact_terms) or any(flight.startswith(prefix) for prefix in prefix_terms) and category in categories:
+            flight = aircraft['flight'].strip() #Flugzeug Kennung
+            hex_code = aircraft['hex'].upper() # HEX Code für DB Abfrage
+            category = aircraft.get('category') # Kategorie A4 / A5
+            geom_rate = aircraft.get('geom_rate', 0) #Sinkflug
+            if any(term == flight for term in exact_terms) or any(flight.startswith(prefix) for prefix in prefix_terms) and category in categories and geom_rate < -0.1:
                 altitude_ft = aircraft.get('alt_geom', None)
-                altitude_m = round(altitude_ft * 0.3048, 2) if altitude_ft is not None else "N/A"
+                altitude_m = round(altitude_ft * 0.3048) if altitude_ft is not None else "N/A"
                 details = lookup_hex_info(hex_code)
                 country_info = find_icao_range(hex_code, icao_ranges)
                 results.append((flight, altitude_m, hex_code, details, country_info))
