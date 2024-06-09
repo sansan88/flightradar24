@@ -30,29 +30,22 @@ Good and straight forward tutorial for Raspberry Pi / Flightradar 24
 - Receiver [PDF download](https://www.flightradar24.com/files/Equipment_Instruction.pdf)
 
 
-# Internal Webserver
+# Dump1090 - Internal Webserver
 based on the [dump1090](https://github.com/SDRplay/dump1090/blob/master/README-json.md) repository. For more information checkout the readme file [here](https://github.com/SDRplay/dump1090/blob/master/README-json.md).
 
+## Map
+you find the Map here: `http://IP-of-Pi/dump1090/gmap.html`
 
+## dump1090-fa Data
+the Data for the Map is located here:
 
+- `http://IP-of-Pi/dump1090/data/receiver.json`
 
-**Map**
+- `http://IP-of-Pi/dump1090/data/aircraft.json`
+  
+- `http://IP-of-Pi/dump1090/data/stats.json`
 
-`http://IP-of-Pi/dump1090/gmap.html`
-
-**Receiver**
-
-`http://IP-of-Pi/dump1090/data/receiver.json`
-
-**Aircrafts**
-
-`http://IP-of-Pi/dump1090/data/aircraft.json`
-
-**Stats**
-    
-`http://IP-of-Pi/dump1090/data/stats.json`
-
-# Config files
+# Config files for FR24 (Flightradar24)
 Config file location ADS-B:  
     
 `/etc/fr24feed.ini`
@@ -71,18 +64,73 @@ You can check FR24 Feeder’s status at any time by executing:
 
 `fr24feed-status`
 
-# DUMP1090-FA
+# dump1090-fa
+Another dataset you can use is the dump1090-fa Flightaware. To change from Dump1090 to dump1090-fa, please follow this steps (from this [Blog](https://forum.flightradar24.com/forum/radar-forums/flightradar24-feeding-data-to-flightradar24/221972-how-to-correctly-replace-dump1090-mutability-with-dump1090-fa)). 
 
-wget https://www.flightaware.com/adsb/piaware/files/packages/pool/piaware/f/flightaware-apt-repository/flightaware-apt-repository_1.2_all.deb
+This does NOT install PiAware - but only the dump1090-fa. If you wanna install PiAware, please follow this [Guide](https://www.flightaware.com/adsb/piaware/install).
 
-sudo dpkg -i flightaware-apt-repository_1.2_all.deb
+## Installation
+1. Remove Dump1090 and it's config files: 
 
-sudo apt update
+    `sudo apt purge dump1090-mutability`
 
-sudo apt install dump1090-fa
+2. Download Flightaware
 
-sudo nano /etc/fr24feed.ini
+    `wget https://www.flightaware.com/adsb/piaware/files/packages/pool/piaware/f/flightaware-apt-repository/flightaware-apt-repository_1.2_all.deb`
 
-sudo reboot
+3. Unpack FLightaware and Install packages
+
+    `sudo dpkg -i flightaware-apt-repository_1.2_all.deb`
+
+    `sudo apt update`
+
+    `sudo apt install dump1090-fa`
+
+4. Change config files
+
+    `sudo nano /etc/fr24feed.ini`
+
+    Change from: 
+
+    `receiver="dvb-t"`
+
+    to 
+    `receiver="avr-tcp"`
+
+    add host: `host="127.0.0.1:30002"`
+
+5. Reboot you Raspberry Pi
+
+    `sudo reboot`
+
+6. Change config file of dump1090-fa if needed:
+
+    `sudo nano /etc/default/dump1090-fa`
+
+    Restart if needed: `sudo systemctl restart dump1090-fa`
+
+7. Change webserver config file if needed:
+    `nano /etc/lighttpd/conf-available/89-skyaware.conf `
 
 
+## Map
+you find the Map here: `http://IP-of-Pi:8080/`
+
+## dump1090-fa Data
+the Data for the Map is located here:
+
+`http://IP-of-Pi:8080/data/aircraft.json`
+
+
+`http://IP-of-Pi:30005/dump1090-fa/data/aircraft.json`
+
+# Fetch Aircraft Data
+based on the dum1090 variant you use, there is a different configuration needed.
+
+## dump1090
+- `api_url = "http://IP-of-Pi/dump1090/data/aircraft.json"`
+- `db_folder = "/usr/share/dump1090-mutability/html/db"`
+
+## dump1090-fa
+- `api_url = "http://IP-of-Pi:8080/data/aircraft.json"`
+- `db_folder = "/usr/share/skyaware/html/db"`
