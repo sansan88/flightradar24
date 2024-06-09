@@ -22,30 +22,14 @@ Good and straight forward tutorial for Raspberry Pi / Flightradar 24
 - Build your own ADS-B receiver [Flightradar24 Article](https://www.flightradar24.com/build-your-own)
 
 
-# Flightradar24 KNOWLEDGE BASE
+# Flightradar24 Knowledge Base
 - Installation Guide [PDF download](https://www.flightradar24.com/files/Documentation%20-%20Installation%20Guide.pdf)
 - T-FEED MANUAL [PDF download]()
 - FR24 FEEDER STATISTICS [PDF download](https://repo-feed.flightradar24.com/fr24feed-manual.pdf)
 - ADS-B ANTENNA [PDF download](https://www.flightradar24.com/files/positioning_mode-s_antenna.pdf)
 - Receiver [PDF download](https://www.flightradar24.com/files/Equipment_Instruction.pdf)
 
-
-# Dump1090 - Internal Webserver
-based on the [dump1090](https://github.com/SDRplay/dump1090/blob/master/README-json.md) repository. For more information checkout the readme file [here](https://github.com/SDRplay/dump1090/blob/master/README-json.md).
-
-## Map
-you find the Map here: `http://IP-of-Pi/dump1090/gmap.html`
-
-## dump1090-fa Data
-the Data for the Map is located here:
-
-- `http://IP-of-Pi/dump1090/data/receiver.json`
-
-- `http://IP-of-Pi/dump1090/data/aircraft.json`
-  
-- `http://IP-of-Pi/dump1090/data/stats.json`
-
-# Config files for FR24 (Flightradar24)
+# Flightradar24 config files
 Config file location ADS-B:  
     
 `/etc/fr24feed.ini`
@@ -63,6 +47,22 @@ Config file location ADS-B:
 You can check FR24 Feeder’s status at any time by executing:
 
 `fr24feed-status`
+
+
+# dump1090
+based on the [dump1090](https://github.com/SDRplay/dump1090/blob/master/README-json.md) repository. For more information checkout the readme file [here](https://github.com/SDRplay/dump1090/blob/master/README-json.md).
+
+## Map
+you find the Map here: `http://IP-of-Pi/dump1090/gmap.html`
+
+## dump1090-fa Data
+the Data for the Map is located here:
+
+- `http://IP-of-Pi/dump1090/data/receiver.json`
+
+- `http://IP-of-Pi/dump1090/data/aircraft.json`
+  
+- `http://IP-of-Pi/dump1090/data/stats.json`
 
 # dump1090-fa
 Another dataset you can use is the dump1090-fa Flightaware. To change from Dump1090 to dump1090-fa, please follow this steps (from this [Blog](https://forum.flightradar24.com/forum/radar-forums/flightradar24-feeding-data-to-flightradar24/221972-how-to-correctly-replace-dump1090-mutability-with-dump1090-fa)). 
