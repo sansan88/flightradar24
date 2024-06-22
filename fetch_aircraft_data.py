@@ -120,17 +120,21 @@ def main():
 
                     flight_route = fetch_flight_route(flight, flight_route_cache)
                     if flight_route:
-                        origin = flight_route.get('origin', {}).get('name', 'Unknown')
-                        destination = flight_route.get('destination', {}).get('name', 'Unknown')
+                        origin_iata = flight_route.get('origin', {}).get('iata_code', 'Unknown')
+                        origin_name = flight_route.get('origin', {}).get('name', 'Unknown')
                     else:
-                        origin = "Unknown"
-                        destination = "Unknown"
+                        origin_iata = "Unknown"
+                        origin_name = "Unknown"
 
                     aircraft_details = get_aircraft_details(hex_code, aircraft_details_cache)
                     if aircraft_details:
                         aircraft_type = aircraft_details.get('type', 'Unknown')
+                        aircraft_manufacturer = aircraft_details.get('manufacturer', 'Unknown')
+                        aircraft_registered_owner = aircraft_details.get('registered_owner', 'Unknown')
                     else:
                         aircraft_type = "Unknown"
+                        aircraft_manufacturer = "Unknown"
+                        aircraft_registered_owner = "Unknown"
 
                     if details:
                         details_str = f"Registration: {details.get('r')}, ICAO Type: {details.get('t')}, Description: {details.get('desc')}, WTC: {details.get('wtc')}"
@@ -138,11 +142,11 @@ def main():
                         details_str = ""
 
                     print(f"{timestamp} - Found flight: {flight}, Altitude: {altitude_m} meters, Hex: {hex_code}, Country: {country_info['country']}, {details_str}")
-                    print(f"Aircraft details: {aircraft_type}")
+                    print(f"Aircraft details: {aircraft_type} {aircraft_manufacturer}")
 
-                    text_top = f"{timestamp}"
-                    text_center = f"{flight} {altitude_m}m"
-                    text_bottom = f"{origin} -> {destination}"
+                    text_top = f"{aircraft_manufacturer} {aircraft_type} {aircraft_registered_owner}"
+                    text_center = f"{origin_iata} {origin_name}"
+                    text_bottom = f"{altitude_m}m {altitude_m}m {altitude_m}m {altitude_m}m {altitude_m}m"
 
                     # Ensure text is string type
                     text_top = str(text_top)
@@ -159,8 +163,8 @@ def main():
             else:
                 print(f"{timestamp} - No matching flights found")
                 time.sleep(2)
-        else:
-            time.sleep(2)
+        #else:
+        #    time.sleep(2)
 
 if __name__ == "__main__":
     main()
