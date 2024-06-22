@@ -1,0 +1,14 @@
+[Unit]
+Description=My Aircraft Fetch Data Service
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/pi/fetch_aircraft_data.py > /home/pi/service.log 2>&1
+Restart=on-failure
+User=pi
+WorkingDirectory=/home/pi
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

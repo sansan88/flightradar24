@@ -124,7 +124,7 @@ the Data for the Map is located here:
 
 `http://IP-of-Pi:30005/dump1090-fa/data/aircraft.json`
 
-# Fetch Aircraft Data
+# Fetch Aircraft Data script config values
 based on the dum1090 variant you use, there is a different configuration needed.
 
 ## dump1090
@@ -134,3 +134,19 @@ based on the dum1090 variant you use, there is a different configuration needed.
 ## dump1090-fa
 - `api_url = "http://IP-of-Pi:8080/data/aircraft.json"`
 - `db_folder = "/usr/share/skyaware/html/db"`
+
+
+# Setup a Service
+- Create a service file
+`sudo nano /lib/systemd/system/fetch_aircraft_data.service`
+
+- File see: "fetch_aircraft_data.service"
+
+- call to reload deamon 
+    
+    `sudo systemctl daemon-reload`
+- enable service with: 
+
+    `sudo systemctl enable fetch_aircraft_data.service`
+
+- Reboot pi `sudo reboot`
