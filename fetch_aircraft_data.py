@@ -93,7 +93,8 @@ def search_flight(data, exact_terms, prefix_terms, icao_ranges, categories):
             category = aircraft.get('category')
             geom_rate = aircraft.get('geom_rate', 0)
             altitude_ft = aircraft.get('alt_geom', 30000)
-            if any(term == flight for term in exact_terms) or any(flight.startswith(prefix) for prefix in prefix_terms) and category in categories and geom_rate < -0.1 and altitude_ft < 15000:
+            #if any(term == flight for term in exact_terms) or any(flight.startswith(prefix) for prefix in prefix_terms) and category in categories and geom_rate < -0.1 and altitude_ft < 15000:
+            if category in categories and geom_rate < -0.1 and altitude_ft < 15000:            
                 altitude_m = round(altitude_ft * 0.3048) if altitude_ft is not None else "N/A"
                 details = lookup_hex_info(hex_code)
                 country_info = find_icao_range(hex_code, icao_ranges)
@@ -103,7 +104,7 @@ def search_flight(data, exact_terms, prefix_terms, icao_ranges, categories):
 def main():
     exact_terms = ["UAE8T", "UAE2MJ", "UAE36P", "UAE87Q"]
     prefix_terms = ["EDW", "SWR", "UEA", "SIA", "QTR", "KAL", "THA", "ETD", "CAP", "THY", "ETH", "AIC"]
-    categories = ["A3", "A4", "A5"]
+    categories = ["A4", "A5"]
     icao_ranges = load_icao_ranges()
 
     flight_route_cache = {}
@@ -153,7 +154,7 @@ def main():
                     text_center = str(text_center)
                     text_bottom = str(text_bottom)
 
-                    process = subprocess.Popen(['python3', 'rgbtext.py', '--top', text_top, '--center', text_center, '--bottom', text_bottom])
+                    process = subprocess.Popen(['python3', 'rgbtext.py', '--top', text_top, '--center', text_center, '--bottom', text_bottom, '--led-brightness', 20])
                     time.sleep(6)
                     process.terminate()
                     try:
