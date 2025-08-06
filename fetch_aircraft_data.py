@@ -79,7 +79,7 @@ def get_aircraft_details(hex_code, cache):
     except requests.RequestException as e:
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Error fetching aircraft details: {e}")
         return None
-    
+
 def search_flight(data, exact_terms, prefix_terms, icao_ranges, categories):
     if 'aircraft' not in data:
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - No aircraft data found")
@@ -154,7 +154,7 @@ def main():
                     text_center = str(text_center)
                     text_bottom = str(text_bottom)
 
-                    process = subprocess.Popen(['python3', 'rgbtext.py', '--top', text_top, '--center', text_center, '--bottom', text_bottom])
+                    process = subprocess.Popen(['python3', 'rgbtext.py', '--top', text_top, '--center', text_center, '--bottom', text_bottom,'--led-no-hardware-pulse'])
                     time.sleep(6)
                     process.terminate()
                     try:
@@ -163,6 +163,13 @@ def main():
                         process.kill()
             else:
                 print(f"{timestamp} - No matching flights found")
+                #process = subprocess.Popen(['python3', 'rgbtext.py', '--top', 'No matching flights found', '--center', '', '--bottom', ''])
+                #time.sleep(6)
+                #process.terminate()
+                #try:
+                #    process.wait(timeout=0)
+                #except subprocess.TimeoutExpired:
+                #    process.kill()
                 time.sleep(2)
         #else:
         #    time.sleep(2)

@@ -155,3 +155,21 @@ based on the dum1090 variant you use, there is a different configuration needed.
 
 # Additional Service
 https://www.adsbdb.com/
+
+# Install RGB Matrix
+
+https://learn.adafruit.com/adafruit-rgb-matrix-plus-real-time-clock-hat-for-raspberry-pi/driving-matrices
+
+Copy rgbtext.py file to user/pi/home 
+Copy font folder to /home/pi
+
+Using the Python Library
+
+Some Python examples are included in the rpi-rgb-led-matrix/bindings/python/samples directory. 
+
+
+ TO TEST (in rpi-rgb-led-matrix/bindings/python/samples): 
+ sudo python3 runtext.py -m=adafruit-hat --led-rows=32 --led-cols=64 --led-slowdown-gpio=4
+
+ or directly with the runtext.py
+ python3 rgbtext.py --top="Top Line Text" --center="Center Line Text" --bottom="Bottom Line Text"
