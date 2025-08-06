@@ -71,7 +71,7 @@ Another dataset you can use is the dump1090-fa Flightaware. To change from Dump1
 
 This does NOT install PiAware - but only the dump1090-fa. If you wanna install PiAware, please follow this [Guide](https://www.flightaware.com/adsb/piaware/install).
 
-## Installation
+## Installation Guide from Blog above.
 1. Remove Dump1090 and it's config files: 
 
     `sudo apt purge dump1090-mutability`
