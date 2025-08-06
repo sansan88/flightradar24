@@ -154,7 +154,7 @@ def main():
                     text_center = str(text_center)
                     text_bottom = str(text_bottom)
 
-                    process = subprocess.Popen(['python3', 'rgbtext.py', '--top', text_top, '--center', text_center, '--bottom', text_bottom,'--led-no-hardware-pulse'])
+                    process = subprocess.Popen(['python3', 'rgbtext.py', '--top', text_top, '--center', text_center, '--bottom', text_bottom])
                     time.sleep(6)
                     process.terminate()
                     try:
