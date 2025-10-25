@@ -4,14 +4,59 @@ from datetime import datetime
 import json
 import os
 import subprocess
+import signal
+import sys
+from collections import OrderedDict
 
 # URL of the API
 api_url = "http://localhost:8080/data/aircraft.json"
 db_folder = "/usr/share/skyaware/html/db"
 
+# Cache configuration
+MAX_CACHE_SIZE = 1000
+CACHE_TTL = 3600  # 1 hour in seconds
+
+class LRUCache:
+    """LRU Cache with TTL support"""
+    def __init__(self, max_size=1000, ttl=3600):
+        self.max_size = max_size
+        self.ttl = ttl
+        self.cache = OrderedDict()
+        self.timestamps = {}
+    
+    def get(self, key):
+        if key in self.cache:
+            # Check if expired
+            if time.time() - self.timestamps[key] > self.ttl:
+                del self.cache[key]
+                del self.timestamps[key]
+                return None
+            # Move to end (most recently used)
+            self.cache.move_to_end(key)
+            return self.cache[key]
+        return None
+    
+    def set(self, key, value):
+        # Remove oldest if at capacity
+        if len(self.cache) >= self.max_size and key not in self.cache:
+            oldest_key = next(iter(self.cache))
+            del self.cache[oldest_key]
+            del self.timestamps[oldest_key]
+        
+        self.cache[key] = value
+        self.timestamps[key] = time.time()
+    
+    def clear(self):
+        self.cache.clear()
+        self.timestamps.clear()
+
+# Global caches
+flight_route_cache = LRUCache(MAX_CACHE_SIZE, CACHE_TTL)
+aircraft_details_cache = LRUCache(MAX_CACHE_SIZE, CACHE_TTL)
+
 def fetch_aircraft_data():
     try:
-        response = requests.get(api_url)
+        response = requests.get(api_url, timeout=10)
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
@@ -49,32 +94,34 @@ def lookup_hex_info(hex_code):
     return None
 
 def fetch_flight_route(callsign, cache):
-    if callsign in cache:
+    cached_result = cache.get(callsign)
+    if cached_result is not None:
         print(f"get callsign {callsign} from cache")
-        return cache[callsign]
+        return cached_result
 
     url = f"https://api.adsbdb.com/v0/callsign/{callsign}"
     try:
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
         response.raise_for_status()
         flightroute = response.json().get('response', {}).get('flightroute', {})
-        cache[callsign] = flightroute
+        cache.set(callsign, flightroute)
         return flightroute
     except requests.RequestException as e:
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Error fetching flight route: {e}")
         return None
 
 def get_aircraft_details(hex_code, cache):
-    if hex_code in cache:
+    cached_result = cache.get(hex_code)
+    if cached_result is not None:
         print(f"get hex {hex_code} from cache")
-        return cache[hex_code]
+        return cached_result
 
     url = f"https://api.adsbdb.com/v0/aircraft/{hex_code}"
     try:
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
         response.raise_for_status()
         aircraft_details = response.json().get('response', {}).get('aircraft', {})
-        cache[hex_code] = aircraft_details
+        cache.set(hex_code, aircraft_details)
         return aircraft_details
     except requests.RequestException as e:
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Error fetching aircraft details: {e}")
@@ -101,78 +148,113 @@ def search_flight(data, exact_terms, prefix_terms, icao_ranges, categories):
                 results.append((flight, altitude_m, hex_code, details, country_info))
     return results
 
+def cleanup_subprocess(process):
+    """Safely terminate subprocess"""
+    if process and process.poll() is None:
+        try:
+            process.terminate()
+            process.wait(timeout=2)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
+
+def signal_handler(signum, frame):
+    """Handle shutdown signals gracefully"""
+    print(f"\n{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Received signal {signum}, shutting down...")
+    sys.exit(0)
+
 def main():
+    # Set up signal handlers for graceful shutdown
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    
     exact_terms = ["UAE8T", "UAE2MJ", "UAE36P", "UAE87Q"]
     prefix_terms = ["EDW", "SWR", "UEA", "SIA", "QTR", "KAL", "THA", "ETD", "CAP", "THY", "ETH", "AIC"]
     categories = ["A4", "A5"]
     icao_ranges = load_icao_ranges()
 
-    flight_route_cache = {}
-    aircraft_details_cache = {}
+    current_process = None
+    error_count = 0
+    max_errors = 5
 
     while True:
-        data = fetch_aircraft_data()
-        if data:
-            found_flights = search_flight(data, exact_terms, prefix_terms, icao_ranges, categories)
-            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            if found_flights:
-                for flight_info in found_flights:
-                    flight, altitude_m, hex_code, details, country_info = flight_info
+        try:
+            data = fetch_aircraft_data()
+            if data:
+                found_flights = search_flight(data, exact_terms, prefix_terms, icao_ranges, categories)
+                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                if found_flights:
+                    for flight_info in found_flights:
+                        flight, altitude_m, hex_code, details, country_info = flight_info
 
-                    flight_route = fetch_flight_route(flight, flight_route_cache)
-                    if flight_route:
-                        origin_iata = flight_route.get('origin', {}).get('iata_code', 'Unknown')
-                        origin_name = flight_route.get('origin', {}).get('name', 'Unknown')
-                    else:
-                        origin_iata = "Unknown"
-                        origin_name = "Unknown"
+                        flight_route = fetch_flight_route(flight, flight_route_cache)
+                        if flight_route:
+                            origin_iata = flight_route.get('origin', {}).get('iata_code', 'Unknown')
+                            origin_name = flight_route.get('origin', {}).get('name', 'Unknown')
+                        else:
+                            origin_iata = "Unknown"
+                            origin_name = "Unknown"
 
-                    aircraft_details = get_aircraft_details(hex_code, aircraft_details_cache)
-                    if aircraft_details:
-                        aircraft_type = aircraft_details.get('type', 'Unknown')
-                        aircraft_manufacturer = aircraft_details.get('manufacturer', 'Unknown')
-                        aircraft_registered_owner = aircraft_details.get('registered_owner', 'Unknown')
-                    else:
-                        aircraft_type = "Unknown"
-                        aircraft_manufacturer = "Unknown"
-                        aircraft_registered_owner = "Unknown"
+                        aircraft_details = get_aircraft_details(hex_code, aircraft_details_cache)
+                        if aircraft_details:
+                            aircraft_type = aircraft_details.get('type', 'Unknown')
+                            aircraft_manufacturer = aircraft_details.get('manufacturer', 'Unknown')
+                            aircraft_registered_owner = aircraft_details.get('registered_owner', 'Unknown')
+                        else:
+                            aircraft_type = "Unknown"
+                            aircraft_manufacturer = "Unknown"
+                            aircraft_registered_owner = "Unknown"
 
-                    if details:
-                        details_str = f"Registration: {details.get('r')}, ICAO Type: {details.get('t')}, Description: {details.get('desc')}, WTC: {details.get('wtc')}"
-                    else:
-                        details_str = ""
+                        if details:
+                            details_str = f"Registration: {details.get('r')}, ICAO Type: {details.get('t')}, Description: {details.get('desc')}, WTC: {details.get('wtc')}"
+                        else:
+                            details_str = ""
 
-                    print(f"{timestamp} - Found flight: {flight}, Altitude: {altitude_m} meters, Hex: {hex_code}, Country: {country_info['country']}, {details_str}")
-                    print(f"Aircraft details: {aircraft_type} {aircraft_manufacturer}")
+                        print(f"{timestamp} - Found flight: {flight}, Altitude: {altitude_m} meters, Hex: {hex_code}, Country: {country_info['country']}, {details_str}")
+                        print(f"Aircraft details: {aircraft_type} {aircraft_manufacturer}")
 
-                    text_top = f"{aircraft_manufacturer} {aircraft_type} {aircraft_registered_owner}"
-                    text_center = f"{origin_iata} {origin_name}"
-                    text_bottom = f"{altitude_m}m {altitude_m}m {altitude_m}m {altitude_m}m {altitude_m}m"
+                        text_top = f"{aircraft_manufacturer} {aircraft_type} {aircraft_registered_owner}"
+                        text_center = f"{origin_iata} {origin_name}"
+                        text_bottom = f"{altitude_m}m {altitude_m}m {altitude_m}m {altitude_m}m {altitude_m}m"
 
-                    # Ensure text is string type
-                    text_top = str(text_top)
-                    text_center = str(text_center)
-                    text_bottom = str(text_bottom)
+                        # Ensure text is string type
+                        text_top = str(text_top)
+                        text_center = str(text_center)
+                        text_bottom = str(text_bottom)
 
-                    process = subprocess.Popen(['python3', 'rgbtext.py', '--top', text_top, '--center', text_center, '--bottom', text_bottom])
-                    time.sleep(6)
-                    process.terminate()
-                    try:
-                        process.wait(timeout=0)
-                    except subprocess.TimeoutExpired:
-                        process.kill()
+                        # Clean up any existing process
+                        cleanup_subprocess(current_process)
+                        
+                        # Start new process
+                        current_process = subprocess.Popen(['python3', 'rgbtext.py', '--top', text_top, '--center', text_center, '--bottom', text_bottom])
+                        time.sleep(6)
+                        cleanup_subprocess(current_process)
+                        current_process = None
+                else:
+                    print(f"{timestamp} - No matching flights found")
+                    time.sleep(2)
             else:
-                print(f"{timestamp} - No matching flights found")
-                #process = subprocess.Popen(['python3', 'rgbtext.py', '--top', 'No matching flights found', '--center', '', '--bottom', ''])
-                #time.sleep(6)
-                #process.terminate()
-                #try:
-                #    process.wait(timeout=0)
-                #except subprocess.TimeoutExpired:
-                #    process.kill()
-                time.sleep(2)
-        #else:
-        #    time.sleep(2)
+                print(f"{timestamp} - No data received from API")
+                time.sleep(5)
+                
+            # Reset error count on successful iteration
+            error_count = 0
+            
+        except Exception as e:
+            error_count += 1
+            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Error in main loop: {e}")
+            
+            if error_count >= max_errors:
+                print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Too many errors ({error_count}), clearing caches and restarting...")
+                flight_route_cache.clear()
+                aircraft_details_cache.clear()
+                error_count = 0
+            
+            # Clean up any running process on error
+            cleanup_subprocess(current_process)
+            current_process = None
+            
+            time.sleep(10)  # Wait longer on errors
 
 if __name__ == "__main__":
     main()
