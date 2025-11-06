@@ -178,3 +178,32 @@ Some Python examples are included in the rpi-rgb-led-matrix/bindings/python/samp
 
  or directly with the runtext.py
  python3 rgbtext.py --top="Top Line Text" --center="Center Line Text" --bottom="Bottom Line Text"
+
+
+ klar
+hier die Schritte 1-4 als reines Markdown (wie README)
+
+⸻
+
+1) System aktualisieren
+
+sudo apt update
+sudo apt full-upgrade -y
+sudo reboot
+
+2) rpi-rgb-led-matrix klonen
+
+git clone https://github.com/hzeller/rpi-rgb-led-matrix.git ~/Flightradar/rpi-rgb-led-matrix
+
+3) C++ Library bauen
+
+cd ~/Flightradar/rpi-rgb-led-matrix
+make build-python
+
+4) Python Bindings installieren
+
+sudo apt install -y python3-pip python3-dev python3-pillow build-essential
+
+cd ~/Flightradar/rpi-rgb-led-matrix/bindings/python
+sudo python3 -m pip install --break-system-packages .
+
