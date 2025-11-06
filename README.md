@@ -159,6 +159,11 @@ https://www.adsbdb.com/
 # Install RGB Matrix
 
 https://learn.adafruit.com/adafruit-rgb-matrix-plus-real-time-clock-hat-for-raspberry-pi/driving-matrices
+## Install Script: 
+https://learn.adafruit.com/adafruit-rgb-matrix-plus-real-time-clock-hat-for-raspberry-pi/install-using-script
+
+`curl https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/main/rgb-matrix.sh >rgb-matrix.sh
+sudo bash rgb-matrix.sh`
 
 Copy rgbtext.py file to user/pi/home 
 Copy font folder to /home/pi
