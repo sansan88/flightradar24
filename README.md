@@ -50,6 +50,12 @@ You can check FR24 Feeder’s status at any time by executing:
 
 `fr24feed-status`
 
+# Flightradar Installtion Script
+
+`sudo bash -c "$(wget -O - https://repo-feed.flightradar24.com/install_fr24_rpi.sh)"
+sudo systemctl enable fr24feed
+sudo systemctl restart fr24feed`
+
 
 # dump1090
 based on the [dump1090](https://github.com/SDRplay/dump1090/blob/master/README-json.md) repository. For more information checkout the readme file [here](https://github.com/SDRplay/dump1090/blob/master/README-json.md).
