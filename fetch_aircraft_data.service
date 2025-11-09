@@ -4,10 +4,10 @@ After=multi-user.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3 /home/pi/fetch_aircraft_data.py > /home/pi/service.log 2>&1
+ExecStart=/usr/bin/python3 /home/flightradar/fetch_aircraft_data.py > /home/flightradar/service.log 2>&1
 Restart=on-failure
-User=pi
-WorkingDirectory=/home/pi
+User=flightradar
+WorkingDirectory=/home/flightradar
 Environment=PYTHONUNBUFFERED=1
 
 [Install]

@@ -17,7 +17,71 @@ Track Aircrafts with Raspberry Pi 4 and show new Airplanes on 32x32 LED Display
 - Adafruit RGB Matrix HAT + RTC für Raspberry Pi – Mini-Set  [Buy at amazon.de](https://www.amazon.de/dp/B00SK69C6E/ref=pe_27091401_487027711_TE_SCE_dp_i1)
 
 
-## Tutorials
+# Tutorial 2.0
+
+## Image
+- Raspberry Pi Imager - Bookworm without Desktop 64 bit
+
+## Installationsscripts
+
+### Flightradar24
+- The official installation script: 
+`sudo bash -c "$(wget -O - https://repo-feed.flightradar24.com/install_fr24_rpi.sh)"`
+`sudo systemctl enable fr24feed`
+`sudo systemctl restart fr24feed`
+
+### Flightaware
+`wget https://www.flightaware.com/adsb/piaware/files/packages/pool/piaware/f/flightaware-apt-repository/flightaware-apt-repository_1.2_all.deb`
+
+`sudo dpkg -i flightaware-apt-repository_1.2_all.deb`
+`sudo apt update`
+
+`sudo apt install piaware`
+`sudo piaware-config allow-auto-updates yes`
+`sudo piaware-config allow-manual-updates yes`
+
+`sudo apt install dump1090-fa`
+`sudo apt full-upgrade`
+`sudo reboot`
+
+### Aicraft fetch Script
+- create file: aicraft.json from mockdata
+- create file: icao_ranges.json from mockdata
+- create file: fetch_aircraft_data.py
+- create file: rgbtext.py
+
+### RGB Matrix: 
+`curl https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/main/rgb-matrix.sh >rgb-matrix.sh`
+`sudo bash rgb-matrix.sh`
+
+`sudo apt update sudo apt full-upgrade -y sudo reboot`
+`git clone https://github.com/hzeller/rpi-rgb-led-matrix.git /rpi-rgb-led-matrix`
+
+- Runtext File aus Repository kopieren: 
+- Installation RGB Matrix
+`python3 rgbtext.py --top="Top Line Text" --center="Center Line Text" --bottom="Bottom Line Text"`
+
+`cd /rpi-rgb-led-matrix make build-python`
+
+`sudo apt install -y python3-pip python3-dev python3-pillow build-essential`
+
+`cd /rpi-rgb-led-matrix/bindings/python sudo python3 -m pip install --break-system-packages .`
+
+Font ordner kopieren:
+`cp -r rpi-rgb-led-matrix/fonts ./fonts`
+
+## Data Services
+- http://192.168.1.174:8080/data/aircraft.json Data Service 
+- http://192.168.1.174:8080 Flightaware Map
+
+
+
+
+
+
+
+
+# Tutorials
 Good and straight forward tutorial for Raspberry Pi / Flightradar 24 
 - Build your own ADS-B receiver [Flightradar24 Article](https://www.flightradar24.com/build-your-own)
 - Adafruit Assembly [Docs](https://learn.adafruit.com/adafruit-rgb-matrix-plus-real-time-clock-hat-for-raspberry-pi/assembly)
