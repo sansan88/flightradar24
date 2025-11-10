@@ -63,20 +63,16 @@ def fetch_aircraft_data():
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Error fetching data: {e}")
         return None
 
-def load_icao_ranges():
-    with open('icao_ranges.json', 'r') as file:
-        return json.load(file)
-
-def find_icao_range(icao, icao_ranges):
-    hexa = int(icao, 16)
-    for icao_range in icao_ranges:
-        start = int(icao_range['start'], 16)
-        end = int(icao_range['end'], 16)
-        if start <= hexa <= end:
-            return icao_range
-    return {'country': 'Unassigned', 'flag_image': 'blank.png'}
-
 def lookup_hex_info(hex_code):
+    # Special case for specific hex code
+    if hex_code.lower() == '4b15a2':
+        return {
+            'r': 'HB-IFA',
+            't': 'A359',
+            'desc': 'Airbus A350-941',
+            'wtc': 'M'
+        }
+
     try:
         for i in range(len(hex_code), 0, -1):
             file_name = hex_code[:i].upper() + ".json"
@@ -111,6 +107,14 @@ def fetch_flight_route(callsign, cache):
         return None
 
 def get_aircraft_details(hex_code, cache):
+    # Special case for specific hex code
+    if hex_code.lower() == '4b15a2':
+        return {
+            'type': 'A350-941',
+            'manufacturer': 'Airbus',
+            'registered_owner': 'Swiss International Air Lines'
+        }
+
     cached_result = cache.get(hex_code)
     if cached_result is not None:
         print(f"get hex {hex_code} from cache")
@@ -127,7 +131,7 @@ def get_aircraft_details(hex_code, cache):
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Error fetching aircraft details: {e}")
         return None
 
-def search_flight(data, exact_terms, prefix_terms, icao_ranges, categories):
+def search_flight(data, exact_terms, prefix_terms, categories):
     if 'aircraft' not in data:
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - No aircraft data found")
         return []
@@ -144,8 +148,7 @@ def search_flight(data, exact_terms, prefix_terms, icao_ranges, categories):
             if category in categories and geom_rate < -0.1 and altitude_ft < 15000:
                 altitude_m = round(altitude_ft * 0.3048) if altitude_ft is not None else "N/A"
                 details = lookup_hex_info(hex_code)
-                country_info = find_icao_range(hex_code, icao_ranges)
-                results.append((flight, altitude_m, hex_code, details, country_info))
+                results.append((flight, altitude_m, hex_code, details))
     return results
 
 def cleanup_subprocess(process):
@@ -171,7 +174,6 @@ def main():
     exact_terms = ["UAE8T", "UAE2MJ", "UAE36P", "UAE87Q"]
     prefix_terms = ["EDW", "SWR", "UEA", "SIA", "QTR", "KAL", "THA", "ETD", "CAP", "THY", "ETH", "AIC"]
     categories = ["A4", "A5"]
-    icao_ranges = load_icao_ranges()
 
     current_process = None
     error_count = 0
@@ -181,11 +183,11 @@ def main():
         try:
             data = fetch_aircraft_data()
             if data:
-                found_flights = search_flight(data, exact_terms, prefix_terms, icao_ranges, categories)
+                found_flights = search_flight(data, exact_terms, prefix_terms, categories)
                 timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 if found_flights:
                     for flight_info in found_flights:
-                        flight, altitude_m, hex_code, details, country_info = flight_info
+                        flight, altitude_m, hex_code, details = flight_info
 
                         flight_route = fetch_flight_route(flight, flight_route_cache)
                         if flight_route:
@@ -210,7 +212,7 @@ def main():
                         else:
                             details_str = ""
 
-                        print(f"{timestamp} - Found flight: {flight}, Altitude: {altitude_m} meters, Hex: {hex_code}, Country: {country_info['country']}, {details_str}")
+                        print(f"{timestamp} - Found flight: {flight}, Altitude: {altitude_m} meters, Hex: {hex_code}, {details_str}")
                         print(f"Aircraft details: {aircraft_type} {aircraft_manufacturer}")
 
                         text_top = f"{aircraft_manufacturer} {aircraft_type} {aircraft_registered_owner}"

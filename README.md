@@ -1,279 +1,201 @@
-# flightradar24
-Track Aircrafts with Raspberry Pi 4 and show new Airplanes on 32x32 LED Display
+# Flightradar24 Aircraft Tracker
+Track aircraft with Raspberry Pi 4 and display new airplanes on a 32x32 LED Matrix
 
-## Setup
+## Hardware Requirements
 
-**Raspberry Pi Set [Buy at Galaxus.ch](https://www.galaxus.ch/de/s1/product/raspberry-pi-4-model-b-entwicklungsboard-kit-13280963?supplier=406802):**
-- Raspberry Pi 4 8G Model B [Buy at Galaxus.ch](https://www.galaxus.ch/de/s1/product/raspberry-pi-4-8g-model-b-entwicklungsboard-kit-13276941)
-- OKdo Raspberry Pi 4 Model B Gehäuse [Buy at Galaxus.ch](https://www.galaxus.ch/de/s1/product/okdo-raspberry-pi-4-model-b-gehaeuse-entwicklungsboard-zubehoer-11268337)
-- Raspberry Pi Official Raspberry Pi 4 Power Adapter USB-C Schwarz [Buy at Galaxus.ch](https://www.galaxus.ch/de/s1/product/raspberry-pi-official-raspberry-pi-4-power-adapter-usb-c-schwarz-entwicklungsboard-zubehoer-11268330?supplier=406802)
-- Raspberry Pi 16GB MicroSD Karte mit Noobs [Buy at Galaxus.ch](https://www.galaxus.ch/de/s1/product/raspberry-pi-16gb-microsd-karte-mit-noobs-microsd-16-gb-speicherkarte-6050625?supplier=406802)
+### Raspberry Pi Set
+Complete set available at [Galaxus.ch](https://www.galaxus.ch/de/s1/product/raspberry-pi-4-model-b-entwicklungsboard-kit-13280963?supplier=406802)
 
-**Tracker:**
-- Nooelec NESDR SMArt v4 Bündel - Premium RTL-SDR mit Aluminiumgehäuse, 0,5PPM TCXO, SMA Input & 3 Antennen. RTL2832U & R820T2-basierte Software Defined Radio [Buy at amazon.de](https://www.amazon.de/dp/B01GDN1T4S/ref=pe_27091401_487024491_TE_item)
+- [Raspberry Pi 4 8GB Model B](https://www.galaxus.ch/de/s1/product/raspberry-pi-4-8g-model-b-entwicklungsboard-kit-13276941)
+- [OKdo Raspberry Pi 4 Model B Case](https://www.galaxus.ch/de/s1/product/okdo-raspberry-pi-4-model-b-gehaeuse-entwicklungsboard-zubehoer-11268337)
+- [Official Raspberry Pi 4 Power Adapter USB-C](https://www.galaxus.ch/de/s1/product/raspberry-pi-official-raspberry-pi-4-power-adapter-usb-c-schwarz-entwicklungsboard-zubehoer-11268330?supplier=406802)
+- [16GB MicroSD Card with NOOBS](https://www.galaxus.ch/de/s1/product/raspberry-pi-16gb-microsd-karte-mit-noobs-microsd-16-gb-speicherkarte-6050625?supplier=406802)
 
-**Display:**
-- Adafruit 32x32 RGB LED Matrix Panel - 4mm Raster [Buy at berrybase.ch](https://www.berrybase.ch/adafruit-32x32-rgb-led-matrix-panel-4mm-raster)
-- Adafruit RGB Matrix HAT + RTC für Raspberry Pi – Mini-Set  [Buy at amazon.de](https://www.amazon.de/dp/B00SK69C6E/ref=pe_27091401_487027711_TE_SCE_dp_i1)
+### ADS-B Receiver
+- [Nooelec NESDR SMArt v4 Bundle](https://www.amazon.de/dp/B01GDN1T4S/ref=pe_27091401_487024491_TE_item) - Premium RTL-SDR with aluminum case, 0.5PPM TCXO, SMA input & 3 antennas
 
+### LED Display
+- [Adafruit 32x32 RGB LED Matrix Panel - 4mm pitch](https://www.berrybase.ch/adafruit-32x32-rgb-led-matrix-panel-4mm-raster)
+- [Adafruit RGB Matrix HAT + RTC for Raspberry Pi](https://www.amazon.de/dp/B00SK69C6E/ref=pe_27091401_487027711_TE_SCE_dp_i1)
 
-# Tutorial 2.0
+## Installation
 
-## Image
-- Raspberry Pi Imager - Bookworm without Desktop 64 bit
+### 1. Operating System
+Flash Raspberry Pi OS using Raspberry Pi Imager:
+- **Image:** Raspberry Pi OS Lite (Bookworm, 64-bit, without Desktop)
 
-## Installationsscripts
+### 2. Install Flightradar24 Feeder
 
-### Flightradar24
-- The official installation script: 
-`sudo bash -c "$(wget -O - https://repo-feed.flightradar24.com/install_fr24_rpi.sh)"`
-`sudo systemctl enable fr24feed`
-`sudo systemctl restart fr24feed`
-
-### Flightaware
-`wget https://www.flightaware.com/adsb/piaware/files/packages/pool/piaware/f/flightaware-apt-repository/flightaware-apt-repository_1.2_all.deb`
-
-`sudo dpkg -i flightaware-apt-repository_1.2_all.deb`
-`sudo apt update`
-
-`sudo apt install piaware`
-`sudo piaware-config allow-auto-updates yes`
-`sudo piaware-config allow-manual-updates yes`
-
-`sudo apt install dump1090-fa`
-`sudo apt full-upgrade`
-`sudo reboot`
-
-### Aicraft fetch Script
-- create file: aicraft.json from mockdata
-- create file: icao_ranges.json from mockdata
-- create file: fetch_aircraft_data.py
-- create file: rgbtext.py
-
-### RGB Matrix: 
-`curl https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/main/rgb-matrix.sh >rgb-matrix.sh`
-`sudo bash rgb-matrix.sh`
-
-`sudo apt update sudo apt full-upgrade -y sudo reboot`
-`git clone https://github.com/hzeller/rpi-rgb-led-matrix.git /rpi-rgb-led-matrix`
-
-- Runtext File aus Repository kopieren: 
-- Installation RGB Matrix
-`python3 rgbtext.py --top="Top Line Text" --center="Center Line Text" --bottom="Bottom Line Text"`
-
-`cd /rpi-rgb-led-matrix make build-python`
-
-`sudo apt install -y python3-pip python3-dev python3-pillow build-essential`
-
-`cd /rpi-rgb-led-matrix/bindings/python sudo python3 -m pip install --break-system-packages .`
-
-Font ordner kopieren:
-`cp -r rpi-rgb-led-matrix/fonts ./fonts`
-
-## Data Services
-- http://192.168.1.174:8080/data/aircraft.json Data Service 
-- http://192.168.1.174:8080 Flightaware Map
-
-
-
-
-
-
-
-
-# Tutorials
-Good and straight forward tutorial for Raspberry Pi / Flightradar 24 
-- Build your own ADS-B receiver [Flightradar24 Article](https://www.flightradar24.com/build-your-own)
-- Adafruit Assembly [Docs](https://learn.adafruit.com/adafruit-rgb-matrix-plus-real-time-clock-hat-for-raspberry-pi/assembly)
-- Adafruit Driving Matrices [Docs](https://learn.adafruit.com/adafruit-rgb-matrix-plus-real-time-clock-hat-for-raspberry-pi/driving-matrices)
-
-
-# Flightradar24 Knowledge Base
-- Installation Guide [PDF download](https://www.flightradar24.com/files/Documentation%20-%20Installation%20Guide.pdf)
-- T-FEED MANUAL [PDF download]()
-- FR24 FEEDER STATISTICS [PDF download](https://repo-feed.flightradar24.com/fr24feed-manual.pdf)
-- ADS-B ANTENNA [PDF download](https://www.flightradar24.com/files/positioning_mode-s_antenna.pdf)
-- Receiver [PDF download](https://www.flightradar24.com/files/Equipment_Instruction.pdf)
-
-# Flightradar24 config files
-Config file location ADS-B:  
-    
-`/etc/fr24feed.ini`
-
-**Web interfaceADS-B:**
-
-`http://IP-of-Pi:8754`
-
-**Log file ADS-B** 
-(run the following command on your Pi to view logs. CTRL+C to stop): 
-    
-`journalctl -u fr24feed -f`
-
-
-You can check FR24 Feeder’s status at any time by executing:
-
-`fr24feed-status`
-
-# Flightradar Installtion Script
-
-`sudo bash -c "$(wget -O - https://repo-feed.flightradar24.com/install_fr24_rpi.sh)"
+```bash
+sudo bash -c "$(wget -O - https://repo-feed.flightradar24.com/install_fr24_rpi.sh)"
 sudo systemctl enable fr24feed
-sudo systemctl restart fr24feed`
+sudo systemctl restart fr24feed
+```
 
+**Configuration & Monitoring:**
+- Config file: `/etc/fr24feed.ini`
+- Web interface: `http://IP-of-Pi:8754`
+- Check status: `fr24feed-status`
+- View logs: `journalctl -u fr24feed -f`
 
-# dump1090
-based on the [dump1090](https://github.com/SDRplay/dump1090/blob/master/README-json.md) repository. For more information checkout the readme file [here](https://github.com/SDRplay/dump1090/blob/master/README-json.md).
+### 3. Install FlightAware (dump1090-fa)
 
-## Map
-you find the Map here: `http://IP-of-Pi/dump1090/gmap.html`
+```bash
+wget https://www.flightaware.com/adsb/piaware/files/packages/pool/piaware/f/flightaware-apt-repository/flightaware-apt-repository_1.2_all.deb
+sudo dpkg -i flightaware-apt-repository_1.2_all.deb
+sudo apt update
+sudo apt install piaware dump1090-fa
+sudo piaware-config allow-auto-updates yes
+sudo piaware-config allow-manual-updates yes
+sudo apt full-upgrade
+sudo reboot
+```
 
-## dump1090-fa Data
-the Data for the Map is located here:
+**Access:**
+- Map: `http://IP-of-Pi:8080/`
+- Aircraft data: `http://IP-of-Pi:8080/data/aircraft.json`
 
-- `http://IP-of-Pi/dump1090/data/receiver.json`
+### 4. Install RGB Matrix Display
 
-- `http://IP-of-Pi/dump1090/data/aircraft.json`
-  
-- `http://IP-of-Pi/dump1090/data/stats.json`
-
-# dump1090-fa
-Another dataset you can use is the dump1090-fa Flightaware. To change from Dump1090 to dump1090-fa, please follow this steps (from this [Blog](https://forum.flightradar24.com/forum/radar-forums/flightradar24-feeding-data-to-flightradar24/221972-how-to-correctly-replace-dump1090-mutability-with-dump1090-fa)). 
-
-This does NOT install PiAware - but only the dump1090-fa. If you wanna install PiAware, please follow this [Guide](https://www.flightaware.com/adsb/piaware/install).
-
-## Installation Guide from Blog above.
-1. Remove Dump1090 and it's config files: 
-
-    `sudo apt purge dump1090-mutability`
-
-2. Download Flightaware
-
-    `wget https://www.flightaware.com/adsb/piaware/files/packages/pool/piaware/f/flightaware-apt-repository/flightaware-apt-repository_1.2_all.deb`
-
-3. Unpack FLightaware and Install packages
-
-    `sudo dpkg -i flightaware-apt-repository_1.2_all.deb`
-
-    `sudo apt update`
-
-    `sudo apt install dump1090-fa`
-
-4. Change config files
-
-    `sudo nano /etc/fr24feed.ini`
-
-    Change from: 
-
-    `receiver="dvb-t"`
-
-    to 
-    `receiver="avr-tcp"`
-
-    add host: `host="127.0.0.1:30002"`
-
-5. Reboot you Raspberry Pi
-
-    `sudo reboot`
-
-6. Change config file of dump1090-fa if needed:
-
-    `sudo nano /etc/default/dump1090-fa`
-
-    Restart if needed: `sudo systemctl restart dump1090-fa`
-
-7. Change webserver config file if needed:
-    `nano /etc/lighttpd/conf-available/89-skyaware.conf `
-
-
-## Map
-you find the Map here: `http://IP-of-Pi:8080/`
-
-## dump1090-fa Data
-the Data for the Map is located here:
-
-`http://IP-of-Pi:8080/data/aircraft.json`
-
-
-`http://IP-of-Pi:30005/dump1090-fa/data/aircraft.json`
-
-# Fetch Aircraft Data script config values
-based on the dum1090 variant you use, there is a different configuration needed.
-
-## dump1090
-- `api_url = "http://IP-of-Pi/dump1090/data/aircraft.json"`
-- `db_folder = "/usr/share/dump1090-mutability/html/db"`
-
-## dump1090-fa
-- `api_url = "http://IP-of-Pi:8080/data/aircraft.json"`
-- `db_folder = "/usr/share/skyaware/html/db"`
-
-
-# Setup a Service
-- Create a service file
-`sudo nano /lib/systemd/system/fetch_aircraft_data.service`
-
-- File see: "fetch_aircraft_data.service"
-
-- call to reload deamon 
-    
-    `sudo systemctl daemon-reload`
-- enable service with: 
-
-    `sudo systemctl enable fetch_aircraft_data.service`
-
-- Reboot pi `sudo reboot`
-
-# Additional Service
-https://www.adsbdb.com/
-
-# Install RGB Matrix
-
-https://learn.adafruit.com/adafruit-rgb-matrix-plus-real-time-clock-hat-for-raspberry-pi/driving-matrices
-## Install Script: 
-https://learn.adafruit.com/adafruit-rgb-matrix-plus-real-time-clock-hat-for-raspberry-pi/install-using-script
-
-`curl https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/main/rgb-matrix.sh >rgb-matrix.sh
-sudo bash rgb-matrix.sh`
-
-Copy rgbtext.py file to user/pi/home 
-Copy font folder to /home/pi
-
-Using the Python Library
-
-Some Python examples are included in the rpi-rgb-led-matrix/bindings/python/samples directory. 
-
-
- TO TEST (in rpi-rgb-led-matrix/bindings/python/samples): 
- sudo python3 runtext.py -m=adafruit-hat --led-rows=32 --led-cols=64 --led-slowdown-gpio=4
-
- or directly with the runtext.py
- python3 rgbtext.py --top="Top Line Text" --center="Center Line Text" --bottom="Bottom Line Text"
-
-
- klar
-hier die Schritte 1-4 als reines Markdown (wie README)
-
-⸻
-
-1) System aktualisieren
-
+#### System Update
+```bash
 sudo apt update
 sudo apt full-upgrade -y
 sudo reboot
+```
 
-2) rpi-rgb-led-matrix klonen
+#### Install Adafruit RGB Matrix Driver
+```bash
+curl https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/main/rgb-matrix.sh >rgb-matrix.sh
+sudo bash rgb-matrix.sh
+```
 
-git clone https://github.com/hzeller/rpi-rgb-led-matrix.git ~/Flightradar/rpi-rgb-led-matrix
-
-3) C++ Library bauen
-
-cd ~/Flightradar/rpi-rgb-led-matrix
+#### Clone and Build rpi-rgb-led-matrix
+```bash
+git clone https://github.com/hzeller/rpi-rgb-led-matrix.git ~/rpi-rgb-led-matrix
+cd ~/rpi-rgb-led-matrix
 make build-python
+```
 
-4) Python Bindings installieren
-
+#### Install Python Dependencies
+```bash
 sudo apt install -y python3-pip python3-dev python3-pillow build-essential
-
 cd ~/Flightradar/rpi-rgb-led-matrix/bindings/python
 sudo python3 -m pip install --break-system-packages .
+```
 
+#### Copy Font Folder (no more used)
+```bash
+cp -r ~/rpi-rgb-led-matrix/fonts ~/Flightradar/fonts
+```
+
+#### Test the Display
+```bash
+python3 rgbtext.py --top="Top Line Text" --center="Center Line Text" --bottom="Bottom Line Text"
+```
+
+### 5. Setup Aircraft Tracking Script
+
+Create the following files in your project directory based on github repo:
+- `fetch_aircraft_data.py`
+- `rgbtext.py`
+
+**Configuration values for `fetch_aircraft_data.py`:**
+- API URL: `http://IP-of-Pi:8080/data/aircraft.json`
+- DB folder: `/usr/share/skyaware/html/db`
+
+### 6. Create System Service
+
+Create service file:
+```bash
+sudo nano /lib/systemd/system/fetch_aircraft_data.service
+```
+
+Use the contents from `fetch_aircraft_data.service` in this repository.
+
+Enable and start the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable fetch_aircraft_data.service
+sudo reboot
+```
+
+## Maintenance
+
+### Update Aircraft Database
+```bash
+git clone https://github.com/flightaware/dump1090.git
+sudo cp -r dump1090/public_html/db /usr/share/skyaware/html/db
+```
+
+## Alternative Setup: Using dump1090-mutability
+
+If you prefer using dump1090-mutability instead of dump1090-fa:
+
+### Switching from dump1090-mutability to dump1090-fa
+
+1. Remove dump1090-mutability:
+```bash
+sudo apt purge dump1090-mutability
+```
+
+2. Install dump1090-fa (follow step 3 above)
+
+3. Update Flightradar24 configuration:
+```bash
+sudo nano /etc/fr24feed.ini
+```
+
+Change receiver settings:
+```ini
+receiver="avr-tcp"
+host="127.0.0.1:30002"
+```
+
+4. Restart services:
+```bash
+sudo systemctl restart fr24feed
+sudo systemctl restart dump1090-fa
+sudo reboot
+```
+
+### Configuration Files
+
+**dump1090-fa config:** `/etc/default/dump1090-fa`
+```bash
+sudo nano /etc/default/dump1090-fa
+sudo systemctl restart dump1090-fa
+```
+
+**Webserver config:** `/etc/lighttpd/conf-available/89-skyaware.conf`
+
+### Data Endpoints
+
+**dump1090-mutability:**
+- Map: `http://IP-of-Pi/dump1090/gmap.html`
+- Data: `http://IP-of-Pi/dump1090/data/aircraft.json`
+- API URL config: `http://IP-of-Pi/dump1090/data/aircraft.json`
+- DB folder config: `/usr/share/dump1090-mutability/html/db`
+
+**dump1090-fa:**
+- Map: `http://IP-of-Pi:8080/`
+- Data: `http://IP-of-Pi:8080/data/aircraft.json`
+- API URL config: `http://IP-of-Pi:8080/data/aircraft.json`
+- DB folder config: `/usr/share/skyaware/html/db`
+
+## Additional Resources
+
+### Official Documentation
+- [Flightradar24: Build Your Own ADS-B Receiver](https://www.flightradar24.com/build-your-own)
+- [Adafruit RGB Matrix HAT Assembly](https://learn.adafruit.com/adafruit-rgb-matrix-plus-real-time-clock-hat-for-raspberry-pi/assembly)
+- [Adafruit RGB Matrix HAT - Driving Matrices](https://learn.adafruit.com/adafruit-rgb-matrix-plus-real-time-clock-hat-for-raspberry-pi/driving-matrices)
+- [dump1090 JSON Format](https://github.com/SDRplay/dump1090/blob/master/README-json.md)
+
+### Flightradar24 Knowledge Base
+- [Installation Guide (PDF)](https://www.flightradar24.com/files/Documentation%20-%20Installation%20Guide.pdf)
+- [FR24 Feeder Manual (PDF)](https://repo-feed.flightradar24.com/fr24feed-manual.pdf)
+- [ADS-B Antenna Positioning (PDF)](https://www.flightradar24.com/files/positioning_mode-s_antenna.pdf)
+- [Receiver Equipment Instructions (PDF)](https://www.flightradar24.com/files/Equipment_Instruction.pdf)
+
+### Additional Services
+- [ADS-B Database](https://www.adsbdb.com/)
