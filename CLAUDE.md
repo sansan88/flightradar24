@@ -27,7 +27,7 @@ journalctl -u fr24feed -f
 `fetch_aircraft_data.py` is the long-running entry point (installed as the `fetch_aircraft_data` systemd service, see `fetch_aircraft_data.service`). Its loop:
 
 1. Polls `http://localhost:8080/data/aircraft.json` (dump1090-fa/SkyAware output).
-2. Filters aircraft in `search_flight()`: currently by category (`A4`/`A5` = large/heavy), descending (`geom_rate < -0.1`), and below 15,000 ft. The `exact_terms`/`prefix_terms` callsign lists exist but are commented out of the filter condition.
+2. Filters aircraft in `search_flight()`: currently by category (`A2`–`A5` = small through heavy), descending (`geom_rate < -0.1`), and below 15,000 ft. The `exact_terms`/`prefix_terms` callsign lists exist but are commented out of the filter condition.
 3. Enriches matches from two sources:
    - Local SkyAware DB files (`/usr/share/skyaware/html/db`, hex-prefix JSON shards) via `lookup_hex_info()`.
    - The adsbdb.com API for flight route and aircraft owner details, wrapped in an in-memory `LRUCache` with 24h TTL. adsbdb answers 404 for unknown airframes/callsigns (common for brand-new registrations and military traffic); those misses are cached as `{}` so the API isn't re-queried every loop.

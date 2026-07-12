@@ -192,7 +192,7 @@ def main():
     
     exact_terms = ["UAE8T", "UAE2MJ", "UAE36P", "UAE87Q"]
     prefix_terms = ["EDW", "SWR", "UEA", "SIA", "QTR", "KAL", "THA", "ETD", "CAP", "THY", "ETH", "AIC"]
-    categories = ["A4", "A5"]
+    categories = ["A2", "A3", "A4", "A5"]
 
     current_process = None
     error_count = 0
