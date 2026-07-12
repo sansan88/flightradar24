@@ -4,7 +4,7 @@ After=multi-user.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3 /home/flightradar/fetch_aircraft_data.py > /home/flightradar/service.log 2>&1
+ExecStart=/usr/bin/python3 /home/flightradar/fetch_aircraft_data.py
 Restart=on-failure
 User=flightradar
 WorkingDirectory=/home/flightradar

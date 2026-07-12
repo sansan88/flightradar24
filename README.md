@@ -123,10 +123,21 @@ sudo reboot
 ## Maintenance
 
 ### Update Aircraft Database
+
+Option 1: Update the dump1090-fa package (includes an updated database):
 ```bash
-git clone https://github.com/flightaware/dump1090.git
-sudo cp -r dump1090/public_html/db /usr/share/skyaware/html/db
+sudo apt update && sudo apt install --only-upgrade dump1090-fa piaware
 ```
+
+Option 2: Copy the latest database from the FlightAware repository:
+```bash
+cd /tmp
+git clone --depth 1 https://github.com/flightaware/dump1090.git
+sudo cp -r dump1090/public_html/db/. /usr/share/skyaware/html/db/
+rm -rf /tmp/dump1090
+```
+
+Note: the trailing `/.` matters — `cp -r dump1090/public_html/db /usr/share/skyaware/html/db` would create a nested `db/db/` folder because the target directory already exists.
 
 ## Alternative Setup: Using dump1090-mutability
 
