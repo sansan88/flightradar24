@@ -30,10 +30,10 @@ journalctl -u fr24feed -f
 2. Filters aircraft in `search_flight()`: currently by category (`A4`/`A5` = large/heavy), descending (`geom_rate < -0.1`), and below 15,000 ft. The `exact_terms`/`prefix_terms` callsign lists exist but are commented out of the filter condition.
 3. Enriches matches from two sources:
    - Local SkyAware DB files (`/usr/share/skyaware/html/db`, hex-prefix JSON shards) via `lookup_hex_info()`.
-   - The adsbdb.com API for flight route and aircraft owner details, wrapped in an in-memory `LRUCache` with 1h TTL to limit external calls.
-4. Displays each match by spawning `rgbtext.py` as a subprocess for ~6 seconds, then terminating it (`cleanup_subprocess` handles termination; the display script itself scrolls forever until killed).
+   - The adsbdb.com API for flight route and aircraft owner details, wrapped in an in-memory `LRUCache` with 24h TTL. adsbdb answers 404 for unknown airframes/callsigns (common for brand-new registrations and military traffic); those misses are cached as `{}` so the API isn't re-queried every loop.
+4. Displays each match by spawning `rgbtext.py` as a subprocess for ~6 seconds, then terminating it (`cleanup_subprocess` handles termination; the display script itself scrolls forever until killed). Display falls back gracefully: unknown airframe → local DB info, unknown route → callsign, nothing known → `Unknown aircraft <hex>`.
 
-`rgbtext.py` is a standalone CLI that scrolls three text lines across the matrix. All LED panel options (rows, brightness, GPIO mapping, etc.) are argparse flags with defaults tuned for this hardware (32x32, `adafruit-hat`, brightness 20). It loads `./fonts/7x13.bdf`, so it must run from a directory containing a `fonts/` folder (copied from rpi-rgb-led-matrix).
+`rgbtext.py` is a standalone CLI that scrolls three text lines across the matrix. All LED panel options (rows, brightness, GPIO mapping, etc.) are argparse flags with defaults tuned for this hardware (32x32, `adafruit-hat`, brightness 20). It loads the font from the absolute path `/home/flightradar/rpi-rgb-led-matrix/fonts/7x13.bdf` (the rpi-rgb-led-matrix checkout on the Pi).
 
 Hardcoded config at the top of `fetch_aircraft_data.py`: `api_url` and `db_folder`. Hex `4b15a2` (Swiss A350 HB-IFA) is special-cased in both lookup functions.
 
@@ -41,5 +41,6 @@ Hardcoded config at the top of `fetch_aircraft_data.py`: `api_url` and `db_folde
 
 - `mockdata/aircraft.json` — sample dump1090 API response for testing off-Pi; `mockdata/icao_ranges.json` — hex-range-to-country mapping.
 - `:etc:fr24feed.ini`, `wpa_supplicant.conf` — reference copies of Pi config files (the fr24key/WiFi values are placeholders/local only).
+- `update_aircraft_db.sh` + `update_aircraft_db.service` — oneshot systemd unit that refreshes the SkyAware DB from the FlightAware dump1090 repo (`~/dump1090` on the Pi) at boot.
 - `fr24_knowledge_base/` — vendor PDFs.
 - `README.md` — full hardware list and step-by-step Pi installation (fr24feed, piaware/dump1090-fa, RGB matrix driver, service setup).

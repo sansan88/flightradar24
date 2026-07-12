@@ -1,0 +1,11 @@
+[Unit]
+Description=Update SkyAware aircraft database from FlightAware repo
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /home/flightradar/update_aircraft_db.sh
+
+[Install]
+WantedBy=multi-user.target

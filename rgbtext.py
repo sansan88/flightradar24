@@ -73,7 +73,7 @@ class RunText:
     def run(self):
         offscreen_canvas = self.matrix.CreateFrameCanvas()
         font = graphics.Font()
-        font.LoadFont("./fonts/7x13.bdf")
+        font.LoadFont("/home/flightradar/rpi-rgb-led-matrix/fonts/7x13.bdf")
         textColor1 = graphics.Color(255, 255, 0)
         textColor2 = graphics.Color(170, 20, 184)
         textColor3 = graphics.Color(255, 255, 255)

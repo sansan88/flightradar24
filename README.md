@@ -120,6 +120,35 @@ sudo systemctl enable fetch_aircraft_data.service
 sudo reboot
 ```
 
+### 7. Create Database Update Service
+
+This oneshot service refreshes the local SkyAware aircraft database on every boot, so new aircraft registrations are recognized after a reboot. It waits for the network, runs `git pull` in the dump1090 checkout, and copies the database to `/usr/share/skyaware/html/db`. If there is no network at boot, it keeps the existing checkout and still copies it, so the database is never left empty.
+
+**Prerequisite:** the FlightAware dump1090 repository cloned at `/home/flightradar/dump1090`:
+```bash
+git clone https://github.com/flightaware/dump1090.git /home/flightradar/dump1090
+```
+
+Install the script and service from this repository:
+```bash
+cp update_aircraft_db.sh /home/flightradar/
+chmod +x /home/flightradar/update_aircraft_db.sh
+sudo cp update_aircraft_db.service /lib/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable update_aircraft_db.service
+```
+
+Test it without rebooting:
+```bash
+sudo systemctl start update_aircraft_db.service
+systemctl status update_aircraft_db.service
+journalctl -u update_aircraft_db
+```
+
+The status output should show `git pull OK` (or "Already up to date") followed by `aircraft database updated`.
+
+Note: the service relies on `network-online.target`. On Raspberry Pi OS Bookworm this works out of the box with NetworkManager; if the pull fails at boot, enable the wait service: `sudo systemctl enable NetworkManager-wait-online.service`.
+
 ## Maintenance
 
 ### Update Aircraft Database
@@ -138,6 +167,14 @@ rm -rf /tmp/dump1090
 ```
 
 Note: the trailing `/.` matters — `cp -r dump1090/public_html/db /usr/share/skyaware/html/db` would create a nested `db/db/` folder because the target directory already exists.
+
+### Automatic Database Update on Boot
+
+The database is refreshed automatically on every reboot by the `update_aircraft_db` service — see [7. Create Database Update Service](#7-create-database-update-service). Trigger a manual update with:
+
+```bash
+sudo systemctl start update_aircraft_db.service
+```
 
 ## Alternative Setup: Using dump1090-mutability
 
